@@ -8,8 +8,9 @@
  */
 
 class ErrorHandler extends Error {
-    statusCode: number;  // Use lowercase "number" for the type
+    statusCode: number; 
     constructor(message: any, statusCode: number) {
+        // for more info docs/ErrorHandlerDoc
         super(message);
         this.statusCode = statusCode;
         Error.captureStackTrace(this, this.constructor)

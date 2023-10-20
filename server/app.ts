@@ -3,7 +3,7 @@ export const app = express();
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import {ErrorMiddleware} from './middleware/error'
-
+import path from "path";
 
 require('dotenv').config();
 
@@ -27,6 +27,15 @@ app.get("/test", (req:Request, res:Response , next:NextFunction) => {
         success: true,
         message: "the api test is working "
     })
+})
+
+
+// temp route for testing the view of the email template 
+app.get("/mailTemplate", (req:Request, res:Response , next:NextFunction) => {
+    const ejsFilePath = path.join(__dirname, 'mails/activation-mail.ejs');
+    var fs = require('fs');
+    var mailTemplate = fs.readFileSync(ejsFilePath, 'utf-8');
+    res.send(mailTemplate)
 })
 
 
