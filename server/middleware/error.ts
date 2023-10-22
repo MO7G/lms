@@ -1,4 +1,4 @@
-import { NextFunction } from "express";
+import { Request, Response,  NextFunction } from "express";
 import ErrorHandler from "../utils/ErrorHandler";
 export const ErrorMiddleware = (err: any, req: Request, res: Response, next: NextFunction) => {
     err.statusCode = err.statusCode || 500;
