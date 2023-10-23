@@ -11,6 +11,8 @@
 
 import mongoose,{Document,Model,Schema, mongo} from "mongoose";
 import bcrypt from "bcryptjs"
+require('dotenv').config();
+import  jwt  from "jsonwebtoken";
 
 
 // regex pattern for email validation !!!
@@ -29,6 +31,8 @@ export interface IUser extends Document{
     isVerified: boolean;
     courses: Array<{courseId:string}>;
     comparePassword:(password:string)=> Promise<boolean>;
+    signAccessToken:()=>string,
+    signRefreshToken: ()=>string
 }
 
 // Todo In the future I want to add a Role-based Access Control (RBAC)
@@ -83,10 +87,22 @@ userSchema.pre<IUser>('save',async function(next){
     if(!this.isModified('password')){
         next();
     }
+    
     // We created a password or we modified a password so we are hashing the new Password!!
     this.password = await bcrypt.hash(this.password, 10);
     next();
 })
+
+
+// sign access token
+userSchema.methods.signAccessToken = function(){
+    return jwt.sign({id:this._id}, process.env.ACCESS_TOKEN || '');
+}
+
+// sign access token
+userSchema.methods.signRefreshToken = function(){
+    return jwt.sign({id:this._id}, process.env.REFRESH_TOKEN || '');
+}
 
 
 

@@ -11,4 +11,4 @@ const redisClient = ()=>{
     throw new Error('Redis connection failed');
 }
 
-export default redisClient;
+export const redis = new Redis(redisClient()); 

@@ -10,7 +10,7 @@
 // todo: I must change the logic flaw of the user creation here by first if the email exist in the database or not 
 // todo: there is a flaw in this logic because what if the user exist and active then i am going to send a activation token to him 
 // todo: which could lead to confusion and secruity issue !!
-
+// todo: fix the behavior of logging in whe the user is already logged in !!!
 import { Request, Response, NextFunction } from "express";
 import userModel, { IUser } from "../models/user.model";
 import ErrorHandler from "../utils/ErrorHandler";
@@ -22,6 +22,9 @@ import sendMail from "../utils/sendMail"
 import SendmailTransport from "nodemailer/lib/sendmail-transport";
 import { exit } from "process";
 import SubscriptionSet from "ioredis/built/SubscriptionSet";
+import { isParseTreeNode } from "typescript";
+import { sendToken } from "../utils/jwt";
+import { redis } from "../utils/redis";
 const fs = require('fs');
 require('dotenv').config();
 
@@ -168,5 +171,58 @@ export const activateUser = CatchAsyncError(async(req:Request , res:Response , n
     } catch (error : any) {
         console.log(error.message);
         next(new ErrorHandler("Can't activate the use " , 400));
+    }
+})
+
+
+
+// Login user 
+interface ILoginRequest{
+    email:string,
+    password:string
+}
+
+export const loginUser = CatchAsyncError(async(req:Request, res:Response , next:NextFunction)=>{
+    try {
+        const {email , password} = req.body as ILoginRequest;
+        
+        if(!email || !password){
+            return next(new ErrorHandler("Please enter email and passwrod ", 400));
+        }
+
+        const user = await userModel.findOne({email}).select("+password");
+
+        if(!user){
+            return next(new ErrorHandler("Invalid email or password", 400));
+        }
+
+        const isPasswordMatches = await user.comparePassword(password);
+
+        if(!isPasswordMatches){
+            return next(new ErrorHandler("Invalid password", 400));
+        }
+
+        sendToken(user,200,res);
+
+    } catch (error : any) {
+        return next(new ErrorHandler(error.message , 400));
+    }
+})
+
+
+
+export const logout =  CatchAsyncError(async(req:Request , res:Response , next:NextFunction)=>{
+    try {
+        res.cookie("access_token" , "" , {maxAge:1})
+        res.cookie("refresh_token" , "" , {maxAge:1})
+        const userId = req.user?._id || '';
+        console.log("this is the user id from the redis  "  , userId)
+       redis.del(userId);
+        res.status(200).json({
+            sucess: true,
+            message:"Logged out successfully"
+        })
+    } catch (error : any) {
+        return next(new ErrorHandler(error.message , 400));
     }
 })
