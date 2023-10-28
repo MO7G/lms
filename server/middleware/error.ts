@@ -28,6 +28,12 @@ export const ErrorMiddleware = (err: any, req: Request, res: Response, next: Nex
         err = new ErrorHandler(message, 400);
     }
 
+
+    if(err.message === "No recipients defined"){
+        const message = "The current email address can't be contacted !!";
+        err = new ErrorHandler(message,400);
+    }
+
     res.status(err.statusCode).json({
         success: false,
         message: err.message

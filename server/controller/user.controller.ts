@@ -58,20 +58,17 @@ export const registrationUser = CatchAsyncError(async (req: Request, res: Respon
             password
         };
 
+        console.log(user)
         const activationToken = createActivationToken(user);
         const activationCode = activationToken.activationCode;
         const data = { user: { name: user.name }, activationCode }
-        console.log("this is the normal object " , data);
-        console.log("This is the other object " , {data});
         
         const html = (await ejs.renderFile(path.join(__dirname, "../mails/activation-mail.ejs"), data)
         .then()
         .catch((error: any)=>{
             return next(new ErrorHandler(error.message, 400));
         }))
-       //console.log(html)
         try {
-
             // Todo: i need to fix the image is not attached with mail sent to the user 
             await sendMail({
                 email: user.email,
@@ -92,13 +89,11 @@ export const registrationUser = CatchAsyncError(async (req: Request, res: Respon
                 activationToken: activationToken.token,
             });
         } catch (error:any) {
-
+            console.log(error.message)
         return next(new ErrorHandler(error.message, 400));
         }
         
     } catch (error: any) {
-        console.log("i am here")
-
         return next(new ErrorHandler(error.message, 400));
     }
 
@@ -126,7 +121,6 @@ export const createActivationToken = (user: any): IActivationToken => {
         user,
         activationCode
     }, process.env.ACTIVATION_SECRET as Secret, { expiresIn: "5m" })
-
     return { token, activationCode };
 }
 
@@ -140,18 +134,19 @@ interface IActivationRequest{
 
 
 export const activateUser = CatchAsyncError(async(req:Request , res:Response , next:NextFunction)=>{
+    
     try {
         const { activation_token, activation_code } = req.body as IActivationRequest;
         const newUser : {user: IUser , activationCode:string} = Jwt.verify(
             activation_token,
             process.env.ACTIVATION_SECRET as string
             ) as {user: IUser , activationCode:string};
-            console.log("i am here")
+
+        // comparing between the activation code in the jwt payload and the activation token provided by the user !!
         if(newUser.activationCode !== activation_code){
             return next(new ErrorHandler("Invalid activation code " , 400));
         }
 
-        
         // check if the user exist or the email it self exist or not !! 
         const {name , email , password} = newUser.user;
         const existUser = await userModel.findOne({email});
@@ -185,25 +180,26 @@ interface ILoginRequest{
 export const loginUser = CatchAsyncError(async(req:Request, res:Response , next:NextFunction)=>{
     try {
         const {email , password} = req.body as ILoginRequest;
-        
+
         if(!email || !password){
             return next(new ErrorHandler("Please enter email and passwrod ", 400));
         }
 
+        // the +password tells mongoose to explicitly include the password field in the query which is by default not included !!
         const user = await userModel.findOne({email}).select("+password");
 
         if(!user){
             return next(new ErrorHandler("Invalid email or password", 400));
         }
-
+        // comparing the entered password after hashing it with the hashed password in the database !!!
         const isPasswordMatches = await user.comparePassword(password);
 
         if(!isPasswordMatches){
             return next(new ErrorHandler("Invalid password", 400));
         }
 
+        // custom function from the utils/jwt to send a cookies with token to the client !!
         sendToken(user,200,res);
-
     } catch (error : any) {
         return next(new ErrorHandler(error.message , 400));
     }

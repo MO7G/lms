@@ -3,6 +3,8 @@ import { Response, NextFunction, Request } from "express";
 import { IUser } from "../models/user.model";
 import { Token } from "nodemailer/lib/xoauth2";
 import {redis} from "./redis"
+
+
 interface ITokenOption {
     expires: Date,
     maxAge: number,
@@ -12,6 +14,8 @@ interface ITokenOption {
 }
 
 export const sendToken = (user: IUser, statusCode: number, res: Response) => {
+   
+    console.log(user);
     const accessToken = user.signAccessToken();
     const refreshToken = user.signRefreshToken();
 
@@ -22,11 +26,8 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
 
 
     // parse environment variables to integrates with fallback values !!
-
     const accessTokenExpire = parseInt(process.env.ACCESS_TOKEN_EXPIRATION || '300', 10);
     const refreshTokenExpire = parseInt(process.env.REFRESH_TOKEN_EXPIRATION || '300', 10);
-
-    console.log("this is the token expires variable " , accessTokenExpire)
 
     // options for cookies 
     const accessTokenOptions: ITokenOption = {
@@ -52,11 +53,10 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
 
     res.cookie("access_token", accessToken, accessTokenOptions);
     res.cookie("refresh_token", refreshToken, refreshTokenOptions);
+
     res.status(statusCode).json({
         sucess: true,
         user,
         accessToken
     })
-
-
 }
