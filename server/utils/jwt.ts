@@ -3,6 +3,7 @@ import { Response, NextFunction, Request } from "express";
 import { IUser } from "../models/user.model";
 import { Token } from "nodemailer/lib/xoauth2";
 import { redis } from "./redis"
+import  Jwt  from "jsonwebtoken";
 
 
 interface ITokenOption {
@@ -17,6 +18,9 @@ interface ITokenOption {
 // parse environment variables to integrates with fallback values !!
 export const accessTokenExpire = parseInt(process.env.ACCESS_TOKEN_EXPIRATION || '300', 10);
 export const refreshTokenExpire = parseInt(process.env.REFRESH_TOKEN_EXPIRATION || '300', 10);
+
+
+
 
 // options for cookies 
 export const accessTokenOptions: ITokenOption = {
@@ -48,7 +52,8 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
     // upload station to redis 
     redis.set(user._id, JSON.stringify(user) as any);
 
-
+    const temp = new Date(Date.now() + (accessTokenExpire * 60 * 1000))
+    console.log("this is the duraction of the access token " , temp)
 
 
 

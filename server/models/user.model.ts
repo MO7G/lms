@@ -24,7 +24,7 @@ export interface IUser extends Document{
     email:string;
     password:string;
     avatar:{
-        pubic_id:string;
+        public_id:string;
         url:string;
     },
     role:string;
@@ -55,12 +55,11 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
     },
     password:{
         type:String,
-        required:[true,"Please enter your password"],
         minlength:[6,"Password must be at least 6 characters"],
         select:false,  // will be excluded from the query result (passwords are sensitiv)
     },
     avatar:{
-        pubilc_id:String,
+        public_id:String,
         url:String
     },
     role:{
