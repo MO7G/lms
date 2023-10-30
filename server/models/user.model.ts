@@ -68,7 +68,7 @@ const userSchema: Schema<IUser> = new mongoose.Schema({
         default:"user",
     },
     isVerified:{
-        type:Boolean,
+        type:Boolean, 
         default:false,
     },
     courses:[
@@ -96,12 +96,12 @@ userSchema.pre<IUser>('save',async function(next){
 
 // sign access token
 userSchema.methods.signAccessToken = function(){
-    return jwt.sign({id:this._id}, process.env.ACCESS_TOKEN || '');
+    return jwt.sign({id:this._id}, process.env.ACCESS_TOKEN || '',{expiresIn: "5m"});
 }
 
 // sign access token
 userSchema.methods.signRefreshToken = function(){
-    return jwt.sign({id:this._id}, process.env.REFRESH_TOKEN || '');
+    return jwt.sign({id:this._id}, process.env.REFRESH_TOKEN || '' , {expiresIn: "3d"});
 }
 
 

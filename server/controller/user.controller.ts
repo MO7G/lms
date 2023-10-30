@@ -15,7 +15,7 @@ import { Request, Response, NextFunction } from "express";
 import userModel, { IUser } from "../models/user.model";
 import ErrorHandler from "../utils/ErrorHandler";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
-import Jwt, { Secret } from "jsonwebtoken";
+import Jwt, { JwtPayload, Secret } from "jsonwebtoken";
 import ejs from "ejs"
 import path from "path"
 import sendMail from "../utils/sendMail"
@@ -23,8 +23,9 @@ import SendmailTransport from "nodemailer/lib/sendmail-transport";
 import { exit } from "process";
 import SubscriptionSet from "ioredis/built/SubscriptionSet";
 import { isParseTreeNode } from "typescript";
-import { sendToken } from "../utils/jwt";
+import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt";
 import { redis } from "../utils/redis";
+import { getUserById } from "../services/user.services";
 const fs = require('fs');
 require('dotenv').config();
 
@@ -208,6 +209,7 @@ export const loginUser = CatchAsyncError(async(req:Request, res:Response , next:
 
 
 export const logout =  CatchAsyncError(async(req:Request , res:Response , next:NextFunction)=>{
+    
     try {
         res.cookie("access_token" , "" , {maxAge:1})
         res.cookie("refresh_token" , "" , {maxAge:1})
@@ -220,5 +222,74 @@ export const logout =  CatchAsyncError(async(req:Request , res:Response , next:N
         })
     } catch (error : any) {
         return next(new ErrorHandler(error.message , 400));
+    }
+})
+
+
+
+
+export const updateAccessToken = CatchAsyncError(async(req:Request, res:Response , next:NextFunction)=>{
+
+    try {
+        const refresh_token = req.cookies.refresh_token as string;
+        const decoded = Jwt.verify(refresh_token,process.env.REFRESH_TOKEN as string) as JwtPayload;
+        
+        const message = 'Could not refresh token';
+        // if the refresh token is expired which is used to generate a new access token
+        if(!decoded){
+            return next(new ErrorHandler(message,400));
+        }
+
+        const session = await redis.get(decoded.id as string);
+
+        //If the session is not in redis this means the user logged out because i only delete the session from redis when the user do
+        // logout action !!
+        if(!session){
+            return next(new ErrorHandler(message,400));
+        }
+
+        // getting the redis session as an object
+        const user = JSON.parse(session);
+        // signing a new token using t  
+        const accessToken = Jwt.sign({id:user._id} , process.env.ACCESS_TOKEN as string, {expiresIn: "5m"});
+        
+        const refreshToken = Jwt.sign({id:user._id} , process.env.REFRESH_TOKEN as string, {expiresIn: "3d"});
+
+
+        res.cookie("access_token" , accessToken , accessTokenOptions);
+        res.cookie("refresh_token" , refreshToken , refreshTokenOptions);
+
+        res.status(200).json({
+            status:"success",
+            accessToken
+        })
+
+    } catch (error : any) {
+        return next(new ErrorHandler(error.message,400));
+    }
+})
+
+
+
+// get user info
+export const getUserInfo = CatchAsyncError(async(req:Request, res:Response , next:NextFunction)=>{
+
+    try {
+        const userId = req.user?._id;
+        getUserById(userId,res);
+    } catch (error : any) {
+        return next(new ErrorHandler(error.message,400));
+    }
+})
+
+
+
+// social auth
+export const socialAuth = CatchAsyncError(async(req:Request, res:Response , next:NextFunction)=>{
+
+    try {
+        const {email , name , avatar} = req.body;
+    } catch (error : any) {
+        return next(new ErrorHandler(error.message,400));
     }
 })

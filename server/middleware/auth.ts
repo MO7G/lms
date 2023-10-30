@@ -15,11 +15,13 @@ import { error } from "console";
 import ErrorHandler from "../utils/ErrorHandler";
 import jwt, { JwtPayload } from "jsonwebtoken"
 import {redis} from '../utils/redis';
+import { decode } from "punycode";
 
 
 // authenticated users 
 export const isAuthenticated = CatchAsyncError(async(req: Request , res : Response , next:NextFunction)=>{
     const access_token = req.cookies.access_token;
+
     if(!access_token){
         return next(new ErrorHandler("Please login to access this resource " , 400  ));
     }
@@ -31,14 +33,30 @@ export const isAuthenticated = CatchAsyncError(async(req: Request , res : Respon
     }
 
 
+
     const user = await redis.get(decoded.id);
-    
     if(!user){
         return next(new ErrorHandler("user not found" , 400  ));
     }
+
+ 
     // normally you will have an error when you try to access the req.user !! because user is not part of the standard 'Request' type
     //  explained more in in  
     req.user = JSON.parse(user);
-
+    console.log("from the auth file  ")
     next();
 })
+
+
+
+
+export const authorizeRoles = (...roles:string[])=>{
+    console.log("from the orizeRoles file  ")
+
+    return (req:Request , res:Response,next:NextFunction)=>{
+        if(!roles.includes(req.user?.role || '')){
+            return next(new ErrorHandler(`Role: ${req.user?.role} is not allowed to access this resource` , 403));
+        }
+        next()
+    }
+}
