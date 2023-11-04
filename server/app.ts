@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import {ErrorMiddleware} from './middleware/error'
 import path from "path";
 import userRouter from './routes/user.route';
+import courseRouter from './routes/cousre.route';
+
 import ejs from 'ejs';
 
 require('dotenv').config();
@@ -26,8 +28,9 @@ app.use(cors({
 }));
 
 
-// testing the mail sender 
+// models routes 
 app.use('/api/v1',userRouter);
+app.use('/api/v1/',courseRouter);
 
 // testing api 
 app.get("/test", (req:Request, res:Response , next:NextFunction) => {

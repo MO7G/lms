@@ -17,12 +17,8 @@ userRouter.post('/logout',isAuthenticated,authorizeRoles("user"), logout);
 // todo: userRouter.post('/logout',isAuthenticated,authorizeRoles("admin"), logout);
 userRouter.get('/refreshtoken' ,  updateAccessToken);
 userRouter.get('/userinfo' ,isAuthenticated ,  getUserInfo);
-
 userRouter.post('/socialAuth', isAuthenticated, socialAuth);
 userRouter.put('/updateUserInfo', isAuthenticated, updateUserInfo);
 userRouter.put('/updatePassword', isAuthenticated, updatePassword);
 userRouter.put('/updateProfilePicture', isAuthenticated, updateProfilePicture);
-
- 
-
 export default userRouter;

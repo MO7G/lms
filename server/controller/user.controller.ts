@@ -25,7 +25,7 @@ import SubscriptionSet from "ioredis/built/SubscriptionSet";
 import { isParseTreeNode } from "typescript";
 import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt";
 import { redis } from "../utils/redis";
-import { getUserById } from "../services/user.services";
+import { getUserById } from "../services/user.service";
 import { error } from "console";
 import cloudinary from "cloudinary"
 const fs = require('fs');
