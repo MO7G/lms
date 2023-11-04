@@ -424,14 +424,14 @@ interface IUpdateProfilePicture {
 // update user profile 
 export const updateProfilePicture = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
     try {
-       
+
         const { avatar } = req.body as IUpdateProfilePicture
-       
+
         const userId = req.user?._id;
-    
+
         const user = await userModel.findById(userId);
-        console.log("i am here " )
-        
+        console.log("i am here ")
+
         if (avatar && user) {
             // if user don't have avatar we will call this if 
             if (user?.avatar?.public_id) {
@@ -460,10 +460,10 @@ export const updateProfilePicture = CatchAsyncError(async (req: Request, res: Re
 
         // update the database and the redis cache
         await user?.save();
-        await redis.set(userId,JSON.stringify(user));
+        await redis.set(userId, JSON.stringify(user));
 
         res.status(201).json({
-            sucess:true,
+            sucess: true,
             user
         })
     } catch (error: any) {
