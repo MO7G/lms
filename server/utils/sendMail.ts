@@ -40,6 +40,14 @@ interface emailOptions {
  */
 const sendMail = async (options: emailOptions): Promise<void> => {
 
+
+    console.log("the smtp host " ,process.env.SMTP_HOST )
+    console.log("the smtp port " ,process.env.SMTP_PORT )
+    console.log("the smtp service " ,process.env.SMTP_SERVICE )
+    console.log("the smtp mail " ,process.env.SMTP_MAIL )
+    console.log("the smtp password " ,process.env.SMTP_PASSWORD )
+
+
     // Create a Nodemailer transporter with SMTP configuration.
     const transporter: Transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST, // SMTP host (e.g., "smtp.example.com")
@@ -56,7 +64,7 @@ const sendMail = async (options: emailOptions): Promise<void> => {
 
     // Get the path to the email template file.
     const templatePath = path.join(__dirname, '../mails', template);
-
+    
     // Render the email template using EJS.
     const html: string = await ejs.renderFile(templatePath, data);
 

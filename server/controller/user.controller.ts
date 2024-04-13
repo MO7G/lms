@@ -28,6 +28,8 @@ import { redis } from "../utils/redis";
 import { getUserById } from "../services/user.service";
 import { error } from "console";
 import cloudinary from "cloudinary"
+import CourseModel from "../models/cousre.model";
+import { constants } from "buffer";
 const fs = require('fs');
 require('dotenv').config();
 
@@ -48,6 +50,7 @@ interface IRegistrationBody {
   * @returns {Object} An object containing the generated token and activation code.
  */
 export const registrationUser = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    
     try {
         const { name, email, password, avatar } = req.body as IRegistrationBody;
         const isEmailExist = await userModel.findOne({ email });
@@ -63,6 +66,8 @@ export const registrationUser = CatchAsyncError(async (req: Request, res: Respon
 
         console.log(user)
         const activationToken = createActivationToken(user);
+        console.log("this is the activation token " , activationToken)
+
         const activationCode = activationToken.activationCode;
         const data = { user: { name: user.name }, activationCode }
 
@@ -71,8 +76,9 @@ export const registrationUser = CatchAsyncError(async (req: Request, res: Respon
             .catch((error: any) => {
                 return next(new ErrorHandler(error.message, 400));
             }))
+            
         try {
-            // Todo: i need to fix the image is not attached with mail sent to the user 
+            // Todo: i need to fix the image is not attached with mail sent to the user
             await sendMail({
                 email: user.email,
                 subject: "Activate your account",
@@ -187,9 +193,11 @@ export const loginUser = CatchAsyncError(async (req: Request, res: Response, nex
         if (!email || !password) {
             return next(new ErrorHandler("Please enter email and passwrod ", 400));
         }
-
         // the +password tells mongoose to explicitly include the password field in the query which is by default not included !!
         const user = await userModel.findOne({ email }).select("+password");
+        const allUsers = await userModel.find();
+        //console.log("those are all the user ")
+       // console.log(allUsers)
 
         if (!user) {
             return next(new ErrorHandler("Invalid email or password", 400));
@@ -275,7 +283,7 @@ export const updateAccessToken = CatchAsyncError(async (req: Request, res: Respo
 
 
 
-// get user info
+// get user info 
 export const getUserInfo = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
 
     try {
@@ -420,7 +428,6 @@ export const updatePassword = CatchAsyncError(async (req: Request, res: Response
 interface IUpdateProfilePicture {
     avatar: string
 }
-
 // update user profile 
 export const updateProfilePicture = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
     try {

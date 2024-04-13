@@ -1,14 +1,34 @@
-import {Redis} from 'ioredis';
-require('dotenv').config();
+import { Redis } from 'ioredis';
+import dotenv from 'dotenv';
+dotenv.config();
 
-// todo will test it when we start the caching 
-const redisClient = ()=>{
-    if(process.env.REDIS_URL){
+// Function to clear the Redis cache
+export const clearCache = async (redis : any) => {
+    try {
+        if (process.env.CLEAR_REDIS_CACHE === 'true') {
+            console.log('Clearing Redis cache...');
+            await redis.flushall();
+            console.log('Redis cache cleared successfully.');
+        } else {
+            console.log('CLEAR_REDIS_CACHE flag is not set to true. Skipping cache clearing.');
+        }
+    } catch (error) {
+        console.error('Failed to clear Redis cache:', error);
+    }
+};
+
+const redisClient = () => {
+    if (process.env.REDIS_URL) {
         console.log(`Redis connected`);
-        return process.env.REDIS_URL
+        const redis = new Redis(process.env.REDIS_URL);
+        // Clear Redis cache after connecting
+        clearCache(redis);
+        return redis;
     }
 
     throw new Error('Redis connection failed');
-}
+};
 
-export const redis = new Redis(redisClient()); 
+export const redis = redisClient();
+
+export default clearCache;
