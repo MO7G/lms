@@ -74,6 +74,36 @@ var mailTemplateServer = http.createServer(async function (req, res) {
     }
 });
 
+
+
+var orderConfirmationServer = http.createServer(async function (req, res) {
+    try {
+        const data = {
+            order: {
+                _id: "ABC123",
+                name: "Sample Course",
+                price: 99.99,
+                date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+            }
+        };
+        // Your rendering logic here
+        var html = await ejs.renderFile(path.join(__dirname, "../mails/order-confirmation.ejs"), data);
+        console.log("Rendered HTML:", html); // Log the rendered HTML
+        console.log("this is called later 2");
+
+        // Set the Content-Type header to indicate HTML content
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+
+        // Send the rendered HTML content in the response body
+        res.end(html);
+    } catch (error) {
+        console.log("this is an error from direct file  ", error);
+        // Handle the error appropriately
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Internal Server Error');
+    }
+});
+
 const runEjsFile = (flag) =>{
     if (flag == 0){
         var PORT = 3000;
@@ -85,7 +115,12 @@ const runEjsFile = (flag) =>{
         questionReplyServer.listen(PORT, function () {
             console.log("Server running at http://localhost:".concat(PORT, "/"));
         });
+    }else if (flag == 2){
+        var PORT = 3000;
+        orderConfirmationServer.listen(PORT, function () {
+            console.log("Server running at http://localhost:".concat(PORT, "/"));
+        });
     }
 }
-runEjsFile(1)
+runEjsFile(2)
 

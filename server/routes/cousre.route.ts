@@ -1,5 +1,5 @@
 import express from "express";
-import { uploadCourse,editCourse, getSingleCourse, getAllCourses,getCourseByUser, addQuestion, addAnswerQuestion } from "../controller/course.controller";
+import { uploadCourse,editCourse, getSingleCourse, getAllCourses,getCourseByUser, addQuestion, addAnswerQuestion, addReview, addReplyToReview } from "../controller/course.controller";
 import { authorizeRoles, isAuthenticated } from "../middleware/auth";
 import { isatty } from "tty";
 
@@ -17,8 +17,10 @@ courseRouter.get('/getAllCourses', getAllCourses );
 courseRouter.get('/getCourseContent/:id', isAuthenticated, getCourseByUser );
 courseRouter.post('/addQuestion', isAuthenticated, addQuestion );
 courseRouter.post('/addAnswer', isAuthenticated, addAnswerQuestion );
+courseRouter.post('/addReview/:id', isAuthenticated, addReview );
+courseRouter.post('/addReply', isAuthenticated,authorizeRoles("admin"),addReplyToReview );
 
 
 
 
-export default courseRouter; 
+export default courseRouter;  

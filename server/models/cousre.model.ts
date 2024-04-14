@@ -8,8 +8,14 @@ interface IComment extends Document {
     question: string,
     questionReplies: IComment[]
 }
+
+interface ICourseRating extends Document {
+    currentRating: number,
+    totalRating: number,
+    totalCount: number
+}
 interface IReview extends Document {
-    user: object,
+    user: IUser,
     rating: number,
     comment: string,
     commentReplies: IComment[];
@@ -47,6 +53,9 @@ interface ICourse extends Document {
     courseData: ICourseData[];
     ratings?: number;
     purchased?: number;
+    totalRating?: number; // New field for total rating
+    reviewCount?: number; // New field for review count
+    courseRating?: ICourseRating;
 }
 
 const reviewsSchema = new Schema<IReview>({
@@ -114,7 +123,19 @@ const courseSchema = new Schema<ICourse>({
     prerequisties: [{ title: String }],
     reviews: [reviewsSchema],
     courseData: [courseDataSchema],
-
+    courseRating: {
+        type: {
+            currentRating: { type: Number, default: 0 },
+            totalRating: { type: Number, default: 0 },
+            totalCount: { type: Number, default: 0 }
+        },
+        default: { currentRating: 0, totalRating: 0, totalCount: 0 }
+    },
+    purchased:{
+        type: Number,
+        required: true,
+        default: 0
+    }
 })
 
 

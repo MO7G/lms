@@ -22,7 +22,7 @@ import sendMail from "../utils/sendMail"
 import SendmailTransport from "nodemailer/lib/sendmail-transport";
 import { exit } from "process";
 import SubscriptionSet from "ioredis/built/SubscriptionSet";
-import { isParseTreeNode } from "typescript";
+import { isConstructorDeclaration, isParseTreeNode } from "typescript";
 import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt";
 import { redis } from "../utils/redis";
 import { getUserById } from "../services/user.service";
@@ -196,6 +196,7 @@ export const loginUser = CatchAsyncError(async (req: Request, res: Response, nex
         // the +password tells mongoose to explicitly include the password field in the query which is by default not included !!
         const user = await userModel.findOne({ email }).select("+password");
         const allUsers = await userModel.find();
+        console.log(user)
         //console.log("those are all the user ")
        // console.log(allUsers)
 

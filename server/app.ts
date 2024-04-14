@@ -8,6 +8,7 @@ import userRouter from './routes/user.route';
 import courseRouter from './routes/cousre.route';
 
 import ejs from 'ejs';
+import orderRouter from './routes/order.route';
 
 require('dotenv').config();
 
@@ -29,8 +30,8 @@ app.use(cors({
 
 
 // models routes 
-app.use('/api/v1',userRouter);
-app.use('/api/v1/',courseRouter);
+app.use('/api/v1',userRouter , courseRouter, orderRouter);
+
 
 // testing api 
 app.get("/test", (req:Request, res:Response , next:NextFunction) => {
