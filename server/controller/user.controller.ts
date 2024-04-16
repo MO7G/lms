@@ -25,11 +25,12 @@ import SubscriptionSet from "ioredis/built/SubscriptionSet";
 import { isConstructorDeclaration, isParseTreeNode } from "typescript";
 import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt";
 import { redis } from "../utils/redis";
-import { getUserById } from "../services/user.service";
+import { getUserById, updateUserRoleSerivce } from "../services/user.service";
 import { error } from "console";
 import cloudinary from "cloudinary"
 import CourseModel from "../models/cousre.model";
 import { constants } from "buffer";
+import { getAllUsersServices } from "../services/user.service"; 
 const fs = require('fs');
 require('dotenv').config();
 
@@ -474,6 +475,27 @@ export const updateProfilePicture = CatchAsyncError(async (req: Request, res: Re
             sucess: true,
             user
         })
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400));
+    }
+})
+
+
+// get all users -- only admin 
+export const getAllUsers = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        getAllUsersServices(res)
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400));
+    }
+})
+
+
+// update usr role -- only admin 
+export const updateUserRole = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const {id,role} = req.body;
+        updateUserRoleSerivce(res,id,role);
     } catch (error: any) {
         return next(new ErrorHandler(error.message, 400));
     }

@@ -6,9 +6,9 @@ import {ErrorMiddleware} from './middleware/error'
 import path from "path";
 import userRouter from './routes/user.route';
 import courseRouter from './routes/cousre.route';
-
 import ejs from 'ejs';
 import orderRouter from './routes/order.route';
+import notificationRouter from './routes/notification.route';
 
 require('dotenv').config();
 
@@ -30,7 +30,7 @@ app.use(cors({
 
 
 // models routes 
-app.use('/api/v1',userRouter , courseRouter, orderRouter);
+app.use('/api/v1',userRouter , courseRouter, orderRouter , notificationRouter);
 
 
 // testing api 

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 import ErrorHandler from "../utils/ErrorHandler";
 import cloudinary from "cloudinary";
-import { createCourse } from "../services/course.service";
+import { createCourse, getAllCourseServices } from "../services/course.service";
 import CourseModel from "../models/cousre.model";
 import { redis } from "../utils/redis";
 import mongoose from "mongoose";
@@ -11,6 +11,7 @@ import { isConstructSignatureDeclaration } from "typescript";
 import ejs from "ejs";
 import path from "path";
 import sendMail from "../utils/sendMail";
+import NotificationModel from "../models/notification.model";
 
 // upload course
 export const uploadCourse = CatchAsyncError(
@@ -124,7 +125,7 @@ export const getSingleCourse = CatchAsyncError(
 );
 
 // get all course --- with  purchasing
-export const getAllCourses = CatchAsyncError(
+export const getCourses = CatchAsyncError(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const isCacheExist = await redis.get("allCourses");
@@ -226,6 +227,15 @@ export const addQuestion = CatchAsyncError(
             // save the updated course
             await course?.save();
 
+
+
+            // send notification to the admin 
+            const notification = await NotificationModel.create({
+                userId: req.user?._id,
+                title:"New Question Received",
+                message:`You have a new Question in ${courseContent?.title}`
+            });
+
             res.status(200).json({
                 success: true,
                 course,
@@ -294,7 +304,11 @@ export const addAnswerQuestion = CatchAsyncError(
             // jf this is satisfied this means that the question owner is adding the annswer no need to send an email to the user.
             if (req.user?._id === question.user._id) {
                 // create a notifcation 
-                console.log("this is called later admin ");
+                const notification = await NotificationModel.create({
+                    userId: req.user?._id,
+                    title:"New Question Reply Received",
+                    message:`You have a new Question reply in ${courseContent?.title}`
+                });
 
 
             } else {
@@ -492,3 +506,13 @@ export const addReplyToReview = CatchAsyncError(
         }
     }
 ); 
+
+
+// get all courses for --- admin only 
+export const getAllCourses = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        getAllCourseServices(res)
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400));
+    }
+})
