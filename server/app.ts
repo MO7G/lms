@@ -9,6 +9,7 @@ import courseRouter from './routes/cousre.route';
 import ejs from 'ejs';
 import orderRouter from './routes/order.route';
 import notificationRouter from './routes/notification.route';
+import analyticsRouter from './routes/analytics.route';
 
 require('dotenv').config();
 
@@ -30,7 +31,7 @@ app.use(cors({
 
 
 // models routes 
-app.use('/api/v1',userRouter , courseRouter, orderRouter , notificationRouter);
+app.use('/api/v1',userRouter , courseRouter, orderRouter , notificationRouter,analyticsRouter);
 
 
 // testing api 
@@ -42,18 +43,6 @@ app.get("/test", (req:Request, res:Response , next:NextFunction) => {
 })
 
 
-// temp route for testing the view of the email template 
-app.get("/mailTemplate", async (req: Request, res: Response, next: NextFunction) => {
-    const ejsFilePath = path.join(__dirname, "mails/activation-mail.ejs");
-    const data = { user: { name: "Mohamed" }, activationCode: "iamhimtheactivationcode" };
-    try {
-        const html = await ejs.renderFile(ejsFilePath, data);
-        res.send(html);
-    } catch (error) {
-        // Handle any rendering errors
-        next(error);
-    }
-});
 
 
 // unkown route 

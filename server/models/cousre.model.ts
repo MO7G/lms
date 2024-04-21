@@ -1,6 +1,7 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 import { DocCommentTemplateOptions } from "typescript";
 import { IUser } from "./user.model";
+import { timeStamp } from "console";
 
 
 interface IComment extends Document {
@@ -136,7 +137,7 @@ const courseSchema = new Schema<ICourse>({
         required: true,
         default: 0
     }
-})
+},{timestamps:true})
 
 
     const CourseModel: Model<ICourse> = mongoose.model("Course",courseSchema);
