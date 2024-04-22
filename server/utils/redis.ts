@@ -29,6 +29,15 @@ const redisClient = () => {
     throw new Error('Redis connection failed');
 };
 
-export const redis = redisClient();
+export function parseRedisExpiration(defaultValue: number): number {
+    const redisExpiration = parseInt(process.env.REDIS_EXPIRE || String(defaultValue), 10);
 
+    if (redisExpiration !== defaultValue) {
+        return redisExpiration * 24 * 60 * 60; // Convert days to seconds
+    }
+    return redisExpiration;
+}
+
+
+export const redis = redisClient();
 export default clearCache;

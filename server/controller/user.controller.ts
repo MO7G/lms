@@ -28,7 +28,7 @@ import {
     refreshTokenOptions,
     sendToken,
 } from "../utils/jwt";
-import { redis } from "../utils/redis";
+import { parseRedisExpiration, redis } from "../utils/redis";
 import { deleteUserSerivce, getUserById, updateUserRoleSerivce } from "../services/user.service";
 import { error } from "console";
 import cloudinary from "cloudinary";
@@ -256,7 +256,7 @@ export const updateAccessToken = CatchAsyncError(
             //If the session is not in redis this means the user logged out because i only delete the session from redis when the user do
             // logout action !!
             if (!session) {
-                return next(new ErrorHandler(message, 400));
+                return next(new ErrorHandler("Please Login to acess this resource", 400));
             }
 
             // getting the redis session as an object
@@ -265,20 +265,20 @@ export const updateAccessToken = CatchAsyncError(
             const accessToken = Jwt.sign(
                 { id: user._id },
                 process.env.ACCESS_TOKEN as string,
-                { expiresIn: "5m" }
+                { expiresIn: `${process.env.ACCESS_TOKEN_EXPIRE}m` }
             );
 
             const refreshToken = Jwt.sign(
                 { id: user._id },
                 process.env.REFRESH_TOKEN as string,
-                { expiresIn: "3d" }
+                { expiresIn: `${process.env.REFRESH_TOKEN_EXPIRE}m` }
             );
             // update our request user !!
             req.user = user;
-
             res.cookie("access_token", accessToken, accessTokenOptions);
             res.cookie("refresh_token", refreshToken, refreshTokenOptions);
-
+            const redisExpiration = parseRedisExpiration(604800); // 604800 is 7 days in seconds
+            await redis.set(user._id, JSON.stringify(user),"EX",redisExpiration) 
             res.status(200).json({
                 status: "success",
                 accessToken,

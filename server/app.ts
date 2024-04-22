@@ -10,7 +10,8 @@ import ejs from 'ejs';
 import orderRouter from './routes/order.route';
 import notificationRouter from './routes/notification.route';
 import analyticsRouter from './routes/analytics.route';
-
+import layoutRouter from './routes/layout.route'
+import testingRouter from './routes/testing.route'
 require('dotenv').config();
 
 
@@ -31,7 +32,10 @@ app.use(cors({
 
 
 // models routes 
-app.use('/api/v1',userRouter , courseRouter, orderRouter , notificationRouter,analyticsRouter);
+app.use('/api/v1',userRouter , courseRouter, orderRouter , notificationRouter,analyticsRouter,layoutRouter);
+
+// for testing purposes
+app.use('/',testingRouter)
 
 
 // testing api 

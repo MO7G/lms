@@ -38,7 +38,7 @@ export const isAuthenticated = CatchAsyncError(async(req: Request , res : Respon
     const user = await redis.get(decoded.id);
     if(!user){
         console.error("isAuthenticated user is not found")
-        return next(new ErrorHandler("user not found" , 400  ));
+        return next(new ErrorHandler("Please login to access this resource" , 400  ));
     }
     // normally you will have an error when you try to access the req.user !! because user is not part of the standard 'Request' type
     //  explained more in in  

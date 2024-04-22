@@ -4,7 +4,7 @@ import ErrorHandler from "../utils/ErrorHandler";
 import cloudinary from "cloudinary";
 import { createCourse, deleteCourseService, getAllCourseServices } from "../services/course.service";
 import CourseModel from "../models/cousre.model";
-import { redis } from "../utils/redis";
+import { parseRedisExpiration, redis } from "../utils/redis";
 import mongoose from "mongoose";
 import { constrainedMemory } from "process";
 import { isConstructSignatureDeclaration } from "typescript";
@@ -108,9 +108,10 @@ export const getSingleCourse = CatchAsyncError(
                     });
                 }
                 console.log("hitting mongodb")
+                const redisExpiration = parseRedisExpiration(604800); // 604800 is 7 days in seconds
 
                 // Cache the fetched data in Redis
-                await redis.set("courseId", JSON.stringify(course));
+                await redis.set("courseId", JSON.stringify(course),'EX',redisExpiration);
 
                 // Return the course data
                 res.status(200).json({

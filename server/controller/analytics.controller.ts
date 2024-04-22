@@ -2,7 +2,6 @@ import NotificationModel from "../models/notification.model";
 import { NextFunction, Request, Response } from "express";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 import ErrorHandler from "../utils/ErrorHandler";
-import { error } from "console" ;
 import cron from "node-cron"
 import { couldStartTrivia } from "typescript";
 import { generateLast12MonthData } from "../utils/analytics.generator";

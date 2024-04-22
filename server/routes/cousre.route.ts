@@ -17,7 +17,7 @@ courseRouter.get('/getCourse/:id', getSingleCourse );
 courseRouter.get('/getCourses', getCourses );
 courseRouter.get('/getCourseContent/:id', isAuthenticated, getCourseByUser );
 courseRouter.post('/addQuestion', isAuthenticated, addQuestion );
-courseRouter.post('/addAnswer', isAuthenticated, addAnswerQuestion );
+courseRouter.post('/addAnswer', isAuthenticated, addAnswerQuestion ); 
 courseRouter.post('/addReview/:id', isAuthenticated, addReview );
 courseRouter.post('/addReply', isAuthenticated,authorizeRoles("admin"),addReplyToReview );
 courseRouter.get('/getAllCourses', isAuthenticated,authorizeRoles("admin"),getAllCourses );
